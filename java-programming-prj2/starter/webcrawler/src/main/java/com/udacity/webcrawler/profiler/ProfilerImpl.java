@@ -7,6 +7,7 @@ import java.io.Writer;
 import java.lang.reflect.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -57,7 +58,7 @@ final class ProfilerImpl implements Profiler {
   public void writeData(Path path) {
     Objects.requireNonNull(path);
 
-    try(BufferedWriter writer = Files.newBufferedWriter(path)) {
+    try(Writer writer = Files.newBufferedWriter(path, StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
       writeData(writer);
       writer.flush();
     } catch (IOException ex) {
@@ -71,5 +72,19 @@ final class ProfilerImpl implements Profiler {
     writer.write(System.lineSeparator());
     state.write(writer);
     writer.write(System.lineSeparator());
+  }
+
+
+  @Override
+  public boolean equals(Object object){
+    if (this == object)
+      return true;
+    if (object == null)
+      return false;
+
+    if(Proxy.isProxyClass(object.getClass())){
+      return object.equals(this);
+    }
+    return object instanceof ProfilerImpl;
   }
 }

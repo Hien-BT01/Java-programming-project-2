@@ -15,6 +15,7 @@ import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.logging.Logger;
 
@@ -41,31 +42,27 @@ public final class WebCrawlerMain {
     CrawlResultWriter resultWriter = new CrawlResultWriter(result);
 
     String resultPath = config.getResultPath();
+    System.out.println(config);
+    System.out.println(config.getProfileOutputPath());
     String profileOutputPath = config.getProfileOutputPath();
-    Writer outputStreamWriter = new OutputStreamWriter(System.out);
-    try{
-      if(resultPath.isEmpty()){
-        resultWriter.write(outputStreamWriter);
-        outputStreamWriter.flush();
-      }
-      else {
-        Path path = Path.of(resultPath);
-        resultWriter.write(path);
-      }
-      if(profileOutputPath.isEmpty()){
-        resultWriter.write(outputStreamWriter);
-        outputStreamWriter.flush();
-      }
-      else {
-        Path path = Path.of(profileOutputPath);
-        resultWriter.write(path);
-      }
+    try (Writer outputStreamWriter = new OutputStreamWriter(System.out)) {
+        if (resultPath.isEmpty()) {
+            resultWriter.write(outputStreamWriter);
+            outputStreamWriter.flush();
+        } else {
+            Path path = Paths.get(resultPath);
+            resultWriter.write(path);
+        }
+        if (profileOutputPath.isEmpty()) {
+            profiler.writeData(outputStreamWriter);
+            outputStreamWriter.flush();
+        } else {
+            Path path = Paths.get(profileOutputPath);
+            profiler.writeData(path);
+        }
 
-    } catch (Exception ex){
-      LOGGER.info("Error at WeCrawlerMain: " + ex.getMessage());
-    }
-    finally {
-      outputStreamWriter.close();
+    } catch (Exception ex) {
+        LOGGER.info("Error at WeCrawlerMain: " + ex.getMessage());
     }
   }
 
